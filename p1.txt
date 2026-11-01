@@ -1,0 +1,36 @@
+bool loggedIn = false;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(A1, INPUT);  
+  pinMode(10, OUTPUT);
+  Serial.println("Enter password:");
+}
+
+void loop() {
+
+  if (Serial.available()) {
+    String in = Serial.readStringUntil('\n');
+    in.trim();
+    if (in == "1234") {
+      loggedIn = true;
+      Serial.println("Login SUCCESS");
+    } else {
+      Serial.println("Login FAILED");
+    }
+  }
+
+  if (loggedIn) {
+    int gas = analogRead(A1);
+
+
+    if (gas > 500) {
+      tone(10, 1000); 
+    } else {
+      noTone(10);  
+
+    }
+    
+    delay(2000);
+  }
+}
