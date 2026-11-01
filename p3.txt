@@ -1,0 +1,44 @@
+#define TEMP_PIN A0
+#define BULB_RELAY 7
+#define MOTOR_RELAY 8
+#define TEMP_LIMIT 35.0
+
+float energyWh = 0;
+unsigned long lastMs;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BULB_RELAY, OUTPUT);
+  pinMode(MOTOR_RELAY, OUTPUT);
+  lastMs = millis();
+}
+
+void loop() {
+  float temp = (analogRead(TEMP_PIN) * 5.0 / 1023.0 - 0.5) * 100;
+
+  bool bulb = temp < TEMP_LIMIT;
+  bool motor = !bulb;
+
+  digitalWrite(BULB_RELAY, bulb);
+  digitalWrite(MOTOR_RELAY, motor);
+
+  float power = (bulb ? 60 : 0) + (motor ? 30 : 0);
+
+  unsigned long now = millis();
+  energyWh += power * (now - lastMs) / 3600000.0;
+  lastMs = now;
+
+  Serial.print("Temp: ");
+  Serial.print(temp);
+  Serial.print(" C | Bulb: ");
+  Serial.print(bulb ? "ON" : "OFF");
+  Serial.print(" | Motor: ");
+  Serial.print(motor ? "ON" : "OFF");
+  Serial.print(" | Power: ");
+  Serial.print(power);
+  Serial.print(" W | Energy: ");
+  Serial.print(energyWh, 4);
+  Serial.println(" Wh");
+
+  delay(1000);
+}
