@@ -1,0 +1,26 @@
+import sqlite3
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+temp = list(60 + np.random.normal(0, 0.5, 100))
+temp[20] = 80.0  # Inject temperature spike
+temp[50] = None  # Inject missing data
+df = pd.DataFrame({"temperature": temp})
+
+
+conn = sqlite3.connect("industrial_data.db")
+df.to_sql("readings", conn, if_exists="replace", index=False)
+df = pd.read_sql("SELECT * FROM readings", conn)
+conn.close()
+df["temperature"].isna().sum()
+df["temperature"] = df["temperature"].interpolate()
+
+df["anomaly"] = df["temperature"] > 70
+print("\nDescriptive statistics:\n", df["temperature"].describe().round(2))
+print("\nAnomalies found:", df["anomaly"].sum())
+
+df["temperature"].plot(title="Industrial Sensor Dashboard")
+plt.savefig("dashboard.png")
+df.to_csv("cleaned_data.csv", index=False)
+print("saved dashboard.png and cleaned_data.csv")
