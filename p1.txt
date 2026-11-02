@@ -1,0 +1,23 @@
+#define TEMP_PIN A0
+#define BUZZER_PIN 8
+const float TEMPERATURE_THRESHOLD = 23.0;
+void setup() {
+pinMode(BUZZER_PIN, OUTPUT);
+Serial.begin(9600);
+}
+void loop() {
+  int tempReading = analogRead(TEMP_PIN);
+  float voltage = tempReading * (5.0 / 1023.0);
+  float temperatureC = (voltage - 0.5) * 100.0;
+  Serial.print("Temperature: ");
+  Serial.print(temperatureC);
+  Serial.println(" C");
+    
+  if (temperatureC > TEMPERATURE_THRESHOLD) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    Serial.println("ALERT: Temperature is too high!");
+  } else {
+  digitalWrite(BUZZER_PIN, LOW);
+  }
+  delay(500);
+}
